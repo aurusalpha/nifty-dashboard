@@ -44,7 +44,7 @@ if page == "Trade Logger":
         
         expiry = st.selectbox("Expiry Date", ["31JUL2025", "28AUG2025", "25SEP2025"])
         strike = st.number_input("Strike Price (for options)", value=0.0)
-        option_type = st.radio("Option Type", ["CALL", "PUT"] if segment == "OPT" else ["N/A"])
+        option_type = st.selectbox("Option Type", ["CE", "PE"] if segment == "OPT" else ["N/A"])
         entry = st.number_input("Entry Price", min_value=0.0)
         exit = st.number_input("Exit Price (optional)", min_value=0.0, value=0.0)
         qty = st.number_input("Quantity", min_value=1)
