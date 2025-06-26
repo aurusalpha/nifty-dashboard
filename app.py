@@ -1,12 +1,12 @@
-# app.py (Streamlit dashboard with login, tickertape, and trade logger)
+# app.py (Streamlit dashboard with login and trade logger — tickertape removed)
 
 import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 import json
 import os
+import time
 from yaml.loader import SafeLoader
-from utils.nse_api import fetch_ticker_data
 
 # Load Streamlit Auth config (admin login)
 with open("config.yaml") as file:
@@ -80,7 +80,7 @@ else:
 st.set_page_config(page_title="NIFTY Dashboard", layout="wide")
 
 # Tabs for dashboard
-page = st.sidebar.selectbox("Select View", ["Tickertape", "Trade Logger", "(coming soon) Price Alerts", "(coming soon) Position Manager"])
+page = st.sidebar.selectbox("Select View", ["Trade Logger", "(coming soon) Price Alerts", "(coming soon) Position Manager"])
 
 # NIFTY 50 symbols
 nifty_symbols = [
@@ -93,23 +93,7 @@ nifty_symbols = [
     "APOLLOHOSP", "TATAMOTORS", "UPL", "WIPRO"
 ]
 
-if page == "Tickertape":
-    st.title(f"📈 Welcome {st.session_state['user_name']} – NIFTY 50 Live Tickertape")
-
-    with st.spinner("Fetching real-time prices from NSE..."):
-        ltp_data = fetch_ticker_data(nifty_symbols)
-        ticker_items = " | ".join([f"{sym}: ₹{ltp_data[sym]}" for sym in ltp_data])
-
-    st.markdown(f"""
-        <marquee behavior="scroll" direction="left" scrollamount="5"
-                 style="color: white; background: black; padding: 10px; font-size: 18px;">
-            {ticker_items}
-        </marquee>
-    """, unsafe_allow_html=True)
-
-    st.caption("Powered by NSE India public data · Updated every ~30 seconds via cache")
-
-elif page == "Trade Logger":
+if page == "Trade Logger":
     st.title("📝 Manual Trade Logger")
     TRADE_FILE = "trades.json"
 
