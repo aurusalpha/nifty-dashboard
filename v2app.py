@@ -11,20 +11,26 @@ st.set_page_config(page_title="F&O Tracker", layout="wide")
 
 page = st.sidebar.selectbox("Select View", ["Trade Logger", "Price Alerts", "(coming soon) Position Manager"])
 
-fno_symbols = [
-    "ASHOKLEY", "BAJAJ-AUTO", "EICHERMOT", "HEROMOTOCO", "M&M", "MARUTI", "TATAMOTORS",
-    "TVSMOTOR", "CUMMINSIND", "APOLLOTYRE", "AXISBANK", "HDFCBANK", "ICICIBANK", "INDUSINDBK",
-    "KOTAKBANK", "SBIN", "BAJAJFINSV", "BAJFINANCE", "CHOLAFIN", "M&MFIN", "MUTHOOTFIN", "PEL",
-    "SHRIRAMFIN", "HDFCLIFE", "SBILIFE", "ABCAPITAL", "MCX", "SBICARD", "BSE", "PAYTM", "BANKBARODA",
-    "ACC", "AMBUJACEM", "GRASIM", "ULTRACEMCO", "AARTIIND", "DEEPAKNTR", "SRF", "TATACHEM", "UPL",
-    "ASIANPAINT", "BERGEPAINT", "HAVELLS", "TITAN", "TRENT", "VOLTAS", "BRITANNIA", "GODREJCP",
-    "JUBLFOOD", "TATACONSUM", "HINDUNILVR", "ITC", "BHEL", "DIXON", "INDHOTEL", "POLYCAB", "BEL",
-    "HAL", "BHARTIARTL", "INDUSTOWER", "NAUKRI", "COFORGE", "HCLTECH", "INFY", "TCS", "TECHM",
-    "WIPRO", "LTF", "ADANIENT", "COALINDIA", "JSWSTEEL", "TATASTEEL", "VEDL", "NMDC", "GAIL", "ONGC",
-    "BPCL", "IGL", "MGL", "RELIANCE", "APOLLOHOSP", "AUROPHARMA", "DIVISLAB", "DRREDDY", "GRANULES",
-    "LUPIN", "SUNPHARMA", "CIPLA", "NTPC", "POWERGRID", "TATAPOWER", "DLF", "GODREJPROP", "LT",
-    "OBEROIRLTY", "ADANIPORTS", "CONCOR", "INDIGO", "ETERNAL", "NIFTY", "NIFTY BANK"
-]
+fno_lot_sizes = {
+    "ASHOKLEY": 3000, "BAJAJ-AUTO": 125, "EICHERMOT": 175, "HEROMOTOCO": 300, "M&M": 700, "MARUTI": 100, "TATAMOTORS": 1425,
+    "TVSMOTOR": 1700, "CUMMINSIND": 600, "APOLLOTYRE": 3000, "AXISBANK": 1200, "HDFCBANK": 550, "ICICIBANK": 1375,
+    "INDUSINDBK": 800, "KOTAKBANK": 400, "SBIN": 1500, "BAJAJFINSV": 200, "BAJFINANCE": 300, "CHOLAFIN": 2000,
+    "M&MFIN": 3500, "MUTHOOTFIN": 425, "PEL": 500, "SHRIRAMFIN": 625, "HDFCLIFE": 1500, "SBILIFE": 900,
+    "ABCAPITAL": 3900, "MCX": 400, "SBICARD": 950, "BSE": 525, "PAYTM": 800, "BANKBARODA": 5400, "ACC": 500,
+    "AMBUJACEM": 1800, "GRASIM": 475, "ULTRACEMCO": 300, "AARTIIND": 1050, "DEEPAKNTR": 550, "SRF": 150,
+    "TATACHEM": 900, "UPL": 1300, "ASIANPAINT": 300, "BERGEPAINT": 1800, "HAVELLS": 1000, "TITAN": 375,
+    "TRENT": 700, "VOLTAS": 850, "BRITANNIA": 200, "GODREJCP": 1000, "JUBLFOOD": 500, "TATACONSUM": 850,
+    "HINDUNILVR": 300, "ITC": 3200, "BHEL": 10500, "DIXON": 150, "INDHOTEL": 3000, "POLYCAB": 300, "BEL": 7600,
+    "HAL": 300, "BHARTIARTL": 950, "INDUSTOWER": 2800, "NAUKRI": 150, "COFORGE": 200, "HCLTECH": 700,
+    "INFY": 600, "TCS": 150, "TECHM": 700, "WIPRO": 1600, "LTF": 5000, "ADANIENT": 500, "COALINDIA": 2700,
+    "JSWSTEEL": 1050, "TATASTEEL": 4250, "VEDL": 3000, "NMDC": 6700, "GAIL": 5400, "ONGC": 3850, "BPCL": 1800,
+    "IGL": 1375, "MGL": 550, "RELIANCE": 250, "APOLLOHOSP": 125, "AUROPHARMA": 850, "DIVISLAB": 175,
+    "DRREDDY": 125, "GRANULES": 2250, "LUPIN": 650, "SUNPHARMA": 1000, "CIPLA": 650, "NTPC": 5700,
+    "POWERGRID": 2700, "TATAPOWER": 4050, "DLF": 1650, "GODREJPROP": 425, "LT": 300, "OBEROIRLTY": 700,
+    "ADANIPORTS": 1250, "CONCOR": 1000, "INDIGO": 300, "ETERNAL": 900, "NIFTY": 50, "NIFTY BANK": 15
+}
+
+fno_symbols = list(fno_lot_sizes.keys())
 
 if page == "Trade Logger":
     st.title("📝 F&O Trade Logger")
@@ -47,7 +53,10 @@ if page == "Trade Logger":
         option_type = st.selectbox("Option Type", ["CE", "PE"] if segment == "OPT" else ["N/A"])
         entry = st.number_input("Entry Price", min_value=0.0)
         exit = st.number_input("Exit Price (optional)", min_value=0.0, value=0.0)
-        qty = st.number_input("Quantity", min_value=1)
+        lots = st.number_input("Lots", min_value=1)
+        lot_size = fno_lot_sizes.get(symbol, 1)
+        final_qty = lots * lot_size
+        st.number_input("Final Quantity", value=final_qty, disabled=True)
         notes = st.text_area("Notes")
         submitted = st.form_submit_button("Save Trade")
 
@@ -60,7 +69,7 @@ if page == "Trade Logger":
                 "option_type": option_type if segment == "OPT" else None,
                 "entry": entry,
                 "exit": exit,
-                "qty": qty,
+                "qty": lots * fno_lot_sizes.get(symbol, 1),
                 "notes": notes,
                 "timestamp": time.time()
             }
