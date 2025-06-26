@@ -1,12 +1,81 @@
-# app.py (Streamlit dashboard with auth + NIFTY 50 tickertape)
+# app.py (Streamlit dashboard with login + NIFTY 50 tickertape)
 
 import streamlit as st
+import streamlit_authenticator as stauth
+import yaml
+import json
+import os
+from yaml.loader import SafeLoader
 from utils.nse_api import fetch_ticker_data
-import auth  # Handles login and approval
 
-# Stop app if user not approved or not logged in
-if not st.session_state.get("user_email"):
+# Load Streamlit Auth config (admin login)
+with open("config.yaml") as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+    config['preauthorized']
+)
+
+# Render login widget
+name, authentication_status, username = authenticator.login(
+    "Login", "main")
+
+# Load or create users.json
+USER_DB = "users.json"
+if not os.path.exists(USER_DB):
+    with open(USER_DB, "w") as f:
+        json.dump({}, f)
+
+with open(USER_DB, "r") as f:
+    users = json.load(f)
+
+ADMIN_EMAIL = list(config['credentials']['usernames'].keys())[0]
+
+if authentication_status:
+    if username == ADMIN_EMAIL:
+        st.success(f"Welcome Admin {name} 👑")
+        st.subheader("User Approval Panel")
+
+        pending = {k: v for k, v in users.items() if v == "pending"}
+        approved = {k: v for k, v in users.items() if v == "approved"}
+
+        st.write("### Pending Users")
+        for user in pending:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(user)
+            with col2:
+                if st.button(f"Approve {user}"):
+                    users[user] = "approved"
+                    with open(USER_DB, "w") as f:
+                        json.dump(users, f)
+                    st.experimental_rerun()
+
+        st.write("### Approved Users")
+        for user in approved:
+            st.write(f"✅ {user}")
+
+    else:
+        status = users.get(username, "pending")
+        if status == "approved":
+            st.success(f"Welcome {name} ✨")
+            st.session_state.user_email = username
+            st.session_state.user_name = name
+        elif status == "pending":
+            st.error("Your access is pending admin approval.")
+            st.stop()
+        else:
+            st.error("Access denied.")
+            st.stop()
+else:
+    st.warning("Please login to continue.")
     st.stop()
+
+# ------------------------ DASHBOARD ----------------------------
 
 # NIFTY 50 symbols
 nifty_symbols = [
