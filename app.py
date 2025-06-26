@@ -21,7 +21,7 @@ authenticator = stauth.Authenticate(
 )
 
 # Render login widget
-name, authentication_status, username = authenticator.login("Login", "main")
+name, authentication_status, username = authenticator.login("Login")
 
 # Load or create users.json
 USER_DB = "users.json"
