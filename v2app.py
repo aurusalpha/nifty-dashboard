@@ -41,7 +41,26 @@ if page == "Trade Logger":
         st.subheader("Log a new F&O Trade")
         symbol = st.selectbox("Symbol", fno_symbols)
         segment = st.radio("Segment", ["FUT", "OPT"])
-        expiry = st.text_input("Expiry Date (e.g. 27JUN2025)")
+        from datetime import date, timedelta
+import calendar
+
+# Utility to get last Thursday of next 3 months
+def get_expiry_dates():
+    today = date.today()
+    expiries = []
+    for i in range(3):
+        month = (today.month + i - 1) % 12 + 1
+        year = today.year + ((today.month + i - 1) // 12)
+        last_day = calendar.monthrange(year, month)[1]
+        for d in range(last_day, 0, -1):
+            dt = date(year, month, d)
+            if dt.weekday() == 3:  # Thursday
+                expiries.append(dt.strftime("%d%b%Y").upper())
+                break
+    return expiries
+
+expiry_options = get_expiry_dates()
+expiry = st.selectbox("Expiry Date", expiry_options)
         strike = st.number_input("Strike Price (for options)", value=0.0)
         option_type = st.radio("Option Type", ["CALL", "PUT"] if segment == "OPT" else ["N/A"])
         entry = st.number_input("Entry Price", min_value=0.0)
