@@ -42,7 +42,7 @@ if page == "Trade Logger":
         symbol = st.selectbox("Symbol", fno_symbols)
         segment = st.radio("Segment", ["FUT", "OPT"])
         
-expiry = st.selectbox("Expiry Date", ["31JUL2025", "28AUG2025", "25SEP2025"])
+        expiry = st.selectbox("Expiry Date", ["31JUL2025", "28AUG2025", "25SEP2025"])
         strike = st.number_input("Strike Price (for options)", value=0.0)
         option_type = st.radio("Option Type", ["CALL", "PUT"] if segment == "OPT" else ["N/A"])
         entry = st.number_input("Entry Price", min_value=0.0)
