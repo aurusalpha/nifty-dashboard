@@ -11,15 +11,23 @@ st.set_page_config(page_title="F&O Tracker", layout="wide")
 
 page = st.sidebar.selectbox("Select View", ["Trade Logger", "Price Alerts", "(coming soon) Position Manager"])
 
-fno_symbols = [
-    "RELIANCE", "INFY", "HDFCBANK", "ICICIBANK", "TCS", "KOTAKBANK", "SBIN", "LT",
-    "ITC", "BHARTIARTL", "ASIANPAINT", "MARUTI", "SUNPHARMA", "AXISBANK", "ULTRACEMCO",
-    "BAJFINANCE", "NTPC", "HINDUNILVR", "POWERGRID", "INDUSINDBK", "TITAN", "BAJAJFINSV",
-    "GRASIM", "TATASTEEL", "ONGC", "JSWSTEEL", "TECHM", "CIPLA", "NESTLEIND", "ADANIENT",
-    "ADANIPORTS", "DIVISLAB", "DRREDDY", "BRITANNIA", "HEROMOTOCO", "HCLTECH", "HDFCLIFE",
-    "BPCL", "COALINDIA", "EICHERMOT", "HINDALCO", "BAJAJ-AUTO", "SBILIFE", "SHREECEM",
-    "APOLLOHOSP", "TATAMOTORS", "UPL", "WIPRO"
-]
+import requests
+
+@st.cache_data(ttl=86400)
+def fetch_fno_symbols():
+    url = "https://www.nseindia.com/api/liveEquity-derivatives"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        data = res.json()
+        symbols = sorted(set(item['symbol'] for item in data['data']))
+        return symbols
+    except:
+        return ["RELIANCE", "INFY", "ICICIBANK"]  # fallback
+
+fno_symbols = fetch_fno_symbols()
 
 if page == "Trade Logger":
     st.title("📝 F&O Trade Logger")
