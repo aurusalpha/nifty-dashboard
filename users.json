@@ -1,0 +1,4 @@
+{
+  "admin@example.com": "approved",
+  "newuser@gmail.com": "pending"
+}
