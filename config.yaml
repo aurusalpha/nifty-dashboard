@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    admin@example.com:
+      email: admin@example.com
+      name: Admin
+      password: '$2b$12$KIXRmnyMZ8iE7uHa9ow8LeAfMPLJJZhllklMQgXLxjQxBF0cv3UFi'  # admin123
+
+cookie:
+  name: niftyauth
+  key: supersecretkey
+  expiry_days: 30
+
+preauthorized:
+  emails:
+    - admin@example.com
