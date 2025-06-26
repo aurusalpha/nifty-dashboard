@@ -11,23 +11,20 @@ st.set_page_config(page_title="F&O Tracker", layout="wide")
 
 page = st.sidebar.selectbox("Select View", ["Trade Logger", "Price Alerts", "(coming soon) Position Manager"])
 
-import requests
-
-@st.cache_data(ttl=86400)
-def fetch_fno_symbols():
-    url = "https://www.nseindia.com/api/liveEquity-derivatives"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-    try:
-        res = requests.get(url, headers=headers, timeout=10)
-        data = res.json()
-        symbols = sorted(set(item['symbol'] for item in data['data']))
-        return symbols
-    except:
-        return ["RELIANCE", "INFY", "ICICIBANK"]  # fallback
-
-fno_symbols = fetch_fno_symbols()
+fno_symbols = [
+    "ASHOKLEY", "BAJAJ-AUTO", "EICHERMOT", "HEROMOTOCO", "M&M", "MARUTI", "TATAMOTORS",
+    "TVSMOTOR", "CUMMINSIND", "APOLLOTYRE", "AXISBANK", "HDFCBANK", "ICICIBANK", "INDUSINDBK",
+    "KOTAKBANK", "SBIN", "BAJAJFINSV", "BAJFINANCE", "CHOLAFIN", "M&MFIN", "MUTHOOTFIN", "PEL",
+    "SHRIRAMFIN", "HDFCLIFE", "SBILIFE", "ABCAPITAL", "MCX", "SBICARD", "BSE", "PAYTM", "BANKBARODA",
+    "ACC", "AMBUJACEM", "GRASIM", "ULTRACEMCO", "AARTIIND", "DEEPAKNTR", "SRF", "TATACHEM", "UPL",
+    "ASIANPAINT", "BERGEPAINT", "HAVELLS", "TITAN", "TRENT", "VOLTAS", "BRITANNIA", "GODREJCP",
+    "JUBLFOOD", "TATACONSUM", "HINDUNILVR", "ITC", "BHEL", "DIXON", "INDHOTEL", "POLYCAB", "BEL",
+    "HAL", "BHARTIARTL", "INDUSTOWER", "NAUKRI", "COFORGE", "HCLTECH", "INFY", "TCS", "TECHM",
+    "WIPRO", "LTF", "ADANIENT", "COALINDIA", "JSWSTEEL", "TATASTEEL", "VEDL", "NMDC", "GAIL", "ONGC",
+    "BPCL", "IGL", "MGL", "RELIANCE", "APOLLOHOSP", "AUROPHARMA", "DIVISLAB", "DRREDDY", "GRANULES",
+    "LUPIN", "SUNPHARMA", "CIPLA", "NTPC", "POWERGRID", "TATAPOWER", "DLF", "GODREJPROP", "LT",
+    "OBEROIRLTY", "ADANIPORTS", "CONCOR", "INDIGO", "ETERNAL", "NIFTY", "NIFTY BANK"
+]
 
 if page == "Trade Logger":
     st.title("📝 F&O Trade Logger")
