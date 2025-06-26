@@ -1,9 +1,14 @@
-# app.py (Streamlit dashboard for NIFTY 50 spot prices)
+# app.py (Streamlit dashboard with auth + NIFTY 50 tickertape)
 
 import streamlit as st
 from utils.nse_api import fetch_ticker_data
+import auth  # Handles login and approval
 
-# NIFTY 50 symbols (same as those used in nse_api.py)
+# Stop app if user not approved or not logged in
+if not st.session_state.get("user_email"):
+    st.stop()
+
+# NIFTY 50 symbols
 nifty_symbols = [
     "RELIANCE", "INFY", "HDFCBANK", "ICICIBANK", "TCS", "KOTAKBANK", "SBIN", "LT",
     "ITC", "BHARTIARTL", "ASIANPAINT", "MARUTI", "SUNPHARMA", "AXISBANK", "ULTRACEMCO",
@@ -16,7 +21,7 @@ nifty_symbols = [
 
 # Page setup
 st.set_page_config(page_title="NIFTY Dashboard", layout="wide")
-st.title("📈 NIFTY 50 Live Spot Tickertape")
+st.title(f"📈 Welcome {st.session_state['user_name']} – NIFTY 50 Live Tickertape")
 
 # Fetch and display LTPs
 with st.spinner("Fetching real-time prices from NSE..."):
