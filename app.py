@@ -1,4 +1,4 @@
-# app.py (Streamlit dashboard with login and trade logger — tickertape removed)
+# app.py (Streamlit dashboard with login, trade logger, and price alerts)
 
 import streamlit as st
 import streamlit_authenticator as stauth
@@ -21,8 +21,7 @@ authenticator = stauth.Authenticate(
 )
 
 # Render login widget
-name, authentication_status, username = authenticator.login(
-    "Login", "main")
+name, authentication_status, username = authenticator.login("Login", "main")
 
 # Load or create users.json
 USER_DB = "users.json"
@@ -80,7 +79,7 @@ else:
 st.set_page_config(page_title="NIFTY Dashboard", layout="wide")
 
 # Tabs for dashboard
-page = st.sidebar.selectbox("Select View", ["Trade Logger", "(coming soon) Price Alerts", "(coming soon) Position Manager"])
+page = st.sidebar.selectbox("Select View", ["Trade Logger", "Price Alerts", "(coming soon) Position Manager"])
 
 # NIFTY 50 symbols
 nifty_symbols = [
@@ -131,6 +130,42 @@ if page == "Trade Logger":
     st.write("### Your Trades")
     user_trades = [t for t in trade_data if t['user'] == st.session_state['user_email']]
     st.dataframe(user_trades)
+
+elif page == "Price Alerts":
+    st.title("🛎️ Price Alert Tracker")
+    ALERT_FILE = "alerts.json"
+
+    if not os.path.exists(ALERT_FILE):
+        with open(ALERT_FILE, "w") as f:
+            json.dump([], f)
+
+    with open(ALERT_FILE, "r") as f:
+        alert_data = json.load(f)
+
+    with st.form("set_alert"):
+        st.subheader("Set a New Price Alert")
+        symbol = st.selectbox("Stock", nifty_symbols)
+        target_price = st.number_input("Target Price", min_value=0.0)
+        direction = st.radio("Trigger When", ["Above", "Below"])
+        alert_button = st.form_submit_button("Save Alert")
+
+        if alert_button:
+            alert = {
+                "user": st.session_state['user_email'],
+                "symbol": symbol,
+                "target": target_price,
+                "direction": direction,
+                "triggered": False,
+                "timestamp": time.time()
+            }
+            alert_data.append(alert)
+            with open(ALERT_FILE, "w") as f:
+                json.dump(alert_data, f)
+            st.success("Alert saved!")
+
+    st.write("### Your Alerts")
+    user_alerts = [a for a in alert_data if a['user'] == st.session_state['user_email']]
+    st.dataframe(user_alerts)
 
 else:
     st.info("Feature coming soon ✨")
