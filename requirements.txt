@@ -1,4 +1,5 @@
-streamlit
+streamlit>=1.35.0
+streamlit-authenticator>=0.3.1
+pyyaml>=6.0
 requests
-streamlit-authenticator
-pyyaml
+pandas
